@@ -173,17 +173,10 @@ Napi::Value AbstractBinary::GetSections(const Napi::CallbackInfo& info) {
   }
 
   Napi::Array sections_array = Napi::Array::New(env);
-  auto sections = binary_->sections();
-
   uint32_t idx = 0;
-  for (auto& section : sections) {
-    Napi::Object section_obj = Napi::Object::New(env);
-    section_obj.Set("name", Napi::String::New(env, section.name()));
-    section_obj.Set("virtual_address", Napi::BigInt::New(env, section.virtual_address()));
-    section_obj.Set("size", Napi::BigInt::New(env, section.size()));
-    section_obj.Set("offset", Napi::BigInt::New(env, section.offset()));
 
-    sections_array[idx++] = section_obj;
+  for (auto& section : binary_->sections()) {
+    sections_array[idx++] = Section::NewInstance(env, &section);
   }
 
   return sections_array;
