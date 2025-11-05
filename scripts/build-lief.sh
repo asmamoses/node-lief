@@ -13,55 +13,42 @@ if [ -n "$GITHUB_ACTIONS" ] || [ -d "/usr/workspace" ]; then
   git config --global --add safe.directory /usr/workspace/LIEF
   git submodule update --init --recursive
 
-  # Install CMake and Ninja on Linux if needed
+  # Install CMake on Linux if needed
   if [[ $(uname -s) == "Linux" ]]; then
-    echo "Detected Linux, checking for Alpine..."
-
     # Detect architecture
     ARCH=$(uname -m)
     case "$ARCH" in
       x86_64)
         CMAKE_ARCH="x86_64"
-        NINJA_ARCH="linux"
         ;;
       aarch64|arm64)
         CMAKE_ARCH="aarch64"
-        NINJA_ARCH="linux-aarch64"
         ;;
       *)
         echo "Unsupported architecture: $ARCH"
         exit 1
         ;;
     esac
-    echo "Detected architecture: $ARCH (CMake: $CMAKE_ARCH, Ninja: $NINJA_ARCH)"
+    echo "Detected architecture: $ARCH (CMake: $CMAKE_ARCH)"
 
-    if [ -f /etc/alpine-release ]; then
-      echo "Detected Alpine Linux, installing CMake via apk..."
-      apk add --no-cache cmake
-    else
-      echo "Installing CMake 4.1.2 for $CMAKE_ARCH..."
-      mkdir -p /cmake
-      curl -fsSL https://github.com/Kitware/CMake/releases/download/v4.1.2/cmake-4.1.2-linux-${CMAKE_ARCH}.sh -o install-cmake.sh
-      chmod +x install-cmake.sh
-      ./install-cmake.sh --skip-license --prefix=/cmake
-      rm install-cmake.sh
-      export PATH="/cmake/bin:$PATH"
-      echo "CMake installed to /cmake"
-    fi
-
-    # Install Ninja from GitHub for both Alpine and non-Alpine
-    echo "Installing Ninja 1.13.1 for $NINJA_ARCH..."
-    mkdir -p /ninja
-    curl -fsSL https://github.com/ninja-build/ninja/releases/download/v1.13.1/ninja-${NINJA_ARCH}.zip -o ninja.zip
-    unzip -q ninja.zip -d /ninja
-    rm ninja.zip
-    chmod +x /ninja/ninja
-    export PATH="/ninja:$PATH"
-    echo "Ninja installed to /ninja"
+    echo "Installing CMake 4.1.2 for $CMAKE_ARCH..."
+    mkdir -p /cmake
+    curl -fsSL https://github.com/Kitware/CMake/releases/download/v4.1.2/cmake-4.1.2-linux-${CMAKE_ARCH}.sh -o install-cmake.sh
+    chmod +x install-cmake.sh
+    ./install-cmake.sh --skip-license --prefix=/cmake
+    rm install-cmake.sh
+    export PATH="/cmake/bin:$PATH"
+    echo "CMake installed to /cmake"
   fi
 fi
 
 echo "Building LIEF library..."
+
+# Use Ninja generator only in local development, not in CI
+if [ -z "$GITHUB_ACTIONS" ] && [ ! -d "/usr/workspace" ]; then
+  export CMAKE_GENERATOR="Ninja"
+  echo "Using Ninja generator for local build..."
+fi
 
 # Create build directory
 mkdir -p "$BUILD_DIR"
@@ -69,7 +56,6 @@ cd "$BUILD_DIR"
 
 # Configure LIEF with CMake (minimal build for speed)
 cmake "../$LIEF_SRC" \
-  -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
   -DLIEF_PYTHON_API=OFF \
@@ -85,7 +71,7 @@ cmake "../$LIEF_SRC" \
   -DLIEF_DOC=OFF \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 
-# Build LIEF (Ninja handles parallelization automatically)
+# Build LIEF
 cmake --build . --config Release
 
 cd ..
