@@ -18,7 +18,7 @@ Parse and manipulate binary executables (ELF, PE, Mach-O, etc.) from JavaScript/
 ## Installation
 
 ```bash
-npm install node-lief
+pnpm install node-lief
 ```
 
 For most platforms, prebuilt binaries will be automatically installed. If no prebuilt binary is available, the package will compile from source automatically.
@@ -223,15 +223,15 @@ git clone --recursive https://github.com/Piebald-AI/node-lief.git
 cd node-lief
 
 # Install dependencies
-npm install
+pnpm install
 
 # Build (this runs both stages automatically)
-npm run build
+pnpm build
 ```
 
 ### Build Process Details
 
-1. **Stage 1: Build LIEF library** (`npm run build:lief`)
+1. **Stage 1: Build LIEF library** (`pnpm build:lief`)
    - Runs `scripts/build-lief.sh`
    - Uses CMake + Ninja to build LIEF C++ library
    - Produces `lief-build/libLIEF.a` (or `LIEF.lib` on Windows)
@@ -246,16 +246,16 @@ npm run build
 
 ```bash
 # Full build (LIEF + addon)
-npm run build
+pnpm build
 
 # Clean build artifacts
-npm run clean
+pnpm clean
 
 # Build only LIEF library
-npm run build:lief
+pnpm build:lief
 
 # Create prebuilt binaries for distribution
-npm run prebuildify
+pnpm prebuildify
 ```
 
 ### Build Requirements
@@ -391,9 +391,8 @@ Contributions are welcome! This project is actively developed and there are many
 1. **Format-specific APIs**: Expose more ELF, PE, and MachO-specific features
 2. **Debug information**: DWARF and PDB parsing support
 3. **Async operations**: Add async/await API for I/O operations
-4. **Test coverage**: More comprehensive test suite
-5. **Documentation**: Usage examples, tutorials, API docs
-6. **Performance**: Optimize hot paths, add benchmarks
+4. **Documentation**: Usage examples, tutorials, API docs
+5. **Performance**: Optimize hot paths, add benchmarks
 
 ### Development Setup
 
@@ -403,16 +402,13 @@ git clone --recursive https://github.com/Piebald-AI/node-lief.git
 cd node-lief
 
 # Install and build
-npm install
-npm run build
+pnpm install
+pnpm build
 
 # Make changes to src/...
 
 # Rebuild
-npm run build
-
-# Test
-npm test
+pnpm build
 ```
 
 See [CLAUDE.md](CLAUDE.md) for detailed development guidelines and architecture documentation.
