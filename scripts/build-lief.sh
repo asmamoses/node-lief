@@ -11,6 +11,24 @@ if [ -n "$GITHUB_ACTIONS" ]; then
   echo "Running in GitHub Actions, configuring git and initializing submodules..."
   git config --global --add safe.directory /usr/workspace
   git submodule update --init --recursive
+
+  # Install CMake on Linux if needed
+  if [[ $(uname -s) == "Linux" ]]; then
+    echo "Detected Linux, checking for Alpine..."
+    if [ -f /etc/alpine-release ]; then
+      echo "Detected Alpine Linux, installing CMake via apk..."
+      apk add --no-cache cmake
+    else
+      echo "Installing CMake 4.2.0-rc2..."
+      mkdir /cmake
+      curl -fsSL https://github.com/Kitware/CMake/releases/download/v4.2.0-rc2/cmake-4.2.0-rc2-linux-x86_64.sh -o install-cmake.sh
+      chmod +x install-cmake.sh
+      ./install-cmake.sh --skip-license --prefix=/cmake
+      rm install-cmake.sh
+      export PATH="/cmake/bin:$PATH"
+      echo "CMake installed to /cmake"
+    fi
+  fi
 fi
 
 echo "Building LIEF library..."
