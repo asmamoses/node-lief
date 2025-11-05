@@ -6,9 +6,9 @@ set -e
 BUILD_DIR="lief-build"
 LIEF_SRC="LIEF"
 
-# Initialize submodules if running in GitHub Actions
-if [ -n "$GITHUB_ACTIONS" ]; then
-  echo "Running in GitHub Actions, configuring git and initializing submodules..."
+# Initialize submodules if running in GitHub Actions or /usr/workspace exists
+if [ -n "$GITHUB_ACTIONS" ] || [ -d "/usr/workspace" ]; then
+  echo "Running in CI environment, configuring git and initializing submodules..."
   git config --global --add safe.directory /usr/workspace
   git submodule update --init --recursive
 
