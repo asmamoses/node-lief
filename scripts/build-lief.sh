@@ -44,18 +44,13 @@ fi
 
 echo "Building LIEF library..."
 
-# Use Ninja generator only in local development, not in CI
-if [ -z "$GITHUB_ACTIONS" ] && [ ! -d "/usr/workspace" ]; then
-  export CMAKE_GENERATOR="Ninja"
-  echo "Using Ninja generator for local build..."
-fi
-
 # Create build directory
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 # Configure LIEF with CMake (minimal build for speed)
 cmake "../$LIEF_SRC" \
+  -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
   -DLIEF_PYTHON_API=OFF \
