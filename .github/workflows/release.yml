@@ -16,6 +16,7 @@ jobs:
       package-manager: 'npm'
       prebuild: 'npm run build:lief'
       target-name: 'node_lief'
+      skip: linuxmusl-x64,linuxmusl-arm64
 
   publish:
     needs: build
