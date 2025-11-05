@@ -1,0 +1,146 @@
+/*
+ * LIEF Section Binding with full read/write support
+ */
+
+#include "section.h"
+#include <LIEF/logging.hpp>
+
+namespace node_lief {
+
+// Static storage for constructor
+static Napi::FunctionReference* section_constructor = nullptr;
+
+Napi::Object Section::Init(Napi::Env env, Napi::Object exports) {
+  Napi::Function constructor = DefineClass(env, "Section", {
+    InstanceAccessor<&Section::GetName>("name"),
+    InstanceAccessor<&Section::GetType>("type"),
+    InstanceAccessor<&Section::GetVirtualAddress>("virtualAddress"),
+    InstanceAccessor<&Section::GetSize, &Section::SetSize>("size"),
+    InstanceAccessor<&Section::GetFileOffset>("fileOffset"),
+    InstanceAccessor<&Section::GetVirtualSize, &Section::SetVirtualSize>("virtualSize"),
+    InstanceAccessor<&Section::GetContent, &Section::SetContent>("content"),
+    InstanceAccessor<&Section::GetOffset>("offset"),
+  });
+
+  section_constructor = new Napi::FunctionReference();
+  *section_constructor = Napi::Persistent(constructor);
+
+  // Return the constructor itself
+  return constructor;
+}
+
+Section::Section(const Napi::CallbackInfo& info)
+    : Napi::ObjectWrap<Section>(info), section_(nullptr) {}
+
+Napi::Object Section::NewInstance(Napi::Env env, LIEF::Section* section) {
+  if (!section_constructor) {
+    Napi::Error::New(env, "Section constructor not initialized").ThrowAsJavaScriptException();
+    return Napi::Object::New(env);
+  }
+  Napi::Object obj = section_constructor->New({});
+  Section* unwrapped = Napi::ObjectWrap<Section>::Unwrap(obj);
+  unwrapped->section_ = section;
+  return obj;
+}
+
+Napi::Value Section::GetName(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  return Napi::String::New(env, section_->name());
+}
+
+Napi::Value Section::GetType(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  // The abstract Section class doesn't have type_to_string()
+  // Return a generic type string
+  return Napi::String::New(env, "SECTION");
+}
+
+Napi::Value Section::GetVirtualAddress(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  return Napi::BigInt::New(env, section_->virtual_address());
+}
+
+Napi::Value Section::GetSize(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  return Napi::BigInt::New(env, section_->size());
+}
+
+void Section::SetSize(const Napi::CallbackInfo& info, const Napi::Value& value) {
+  if (!section_ || !value.IsBigInt()) return;
+  bool lossless = false;
+  uint64_t new_size = value.As<Napi::BigInt>().Uint64Value(&lossless);
+  section_->size(new_size);
+}
+
+Napi::Value Section::GetFileOffset(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  return Napi::BigInt::New(env, section_->offset());
+}
+
+Napi::Value Section::GetVirtualSize(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  // The abstract Section class doesn't have virtual_size(), just size()
+  return Napi::BigInt::New(env, section_->size());
+}
+
+void Section::SetVirtualSize(const Napi::CallbackInfo& info, const Napi::Value& value) {
+  if (!section_ || !value.IsBigInt()) return;
+  bool lossless = false;
+  uint64_t new_size = value.As<Napi::BigInt>().Uint64Value(&lossless);
+  // The abstract Section class doesn't have virtual_size(), use size()
+  section_->size(new_size);
+}
+
+Napi::Value Section::GetContent(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+
+  auto content = section_->content();
+  if (content.empty()) {
+    return Napi::Array::New(env);
+  }
+
+  Napi::Array result = Napi::Array::New(env);
+  for (size_t i = 0; i < content.size(); i++) {
+    result.Set(static_cast<uint32_t>(i), Napi::Number::New(env, content[i]));
+  }
+  return result;
+}
+
+void Section::SetContent(const Napi::CallbackInfo& info, const Napi::Value& value) {
+  if (!section_) return;
+
+  std::vector<uint8_t> new_content;
+
+  if (value.IsArray()) {
+    auto arr = value.As<Napi::Array>();
+    new_content.reserve(arr.Length());
+    for (uint32_t i = 0; i < arr.Length(); i++) {
+      auto val = arr.Get(i);
+      if (val.IsNumber()) {
+        new_content.push_back(static_cast<uint8_t>(val.As<Napi::Number>().Uint32Value()));
+      }
+    }
+  } else if (value.IsBuffer()) {
+    auto buffer = value.As<Napi::Buffer<uint8_t>>();
+    new_content.assign(buffer.Data(), buffer.Data() + buffer.Length());
+  }
+
+  if (!new_content.empty()) {
+    section_->content(new_content);
+  }
+}
+
+Napi::Value Section::GetOffset(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!section_) return env.Null();
+  return Napi::BigInt::New(env, section_->offset());
+}
+
+} // namespace node_lief

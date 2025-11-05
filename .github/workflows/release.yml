@@ -1,0 +1,58 @@
+name: Release & Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    uses: Datadog/action-prebuildify/.github/workflows/build.yml@main
+    with:
+      cache: false
+      directory-path: '.'
+      min-node-version: 18
+      napi: true
+      package-manager: 'npm'
+      prebuild: 'npm run build:lief'
+      target-name: 'node_lief'
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download prebuilds
+        uses: actions/download-artifact@v4
+        with:
+          name: prebuilds
+          path: prebuilds
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: prebuilds/**/*

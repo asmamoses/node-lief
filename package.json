@@ -1,0 +1,39 @@
+{
+  "name": "node-lief",
+  "version": "0.1.0-pre.0",
+  "description": "Node.js bindings for LIEF - Library to Instrument Executable Formats",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "npm run build:lief && node-gyp rebuild",
+    "build:lief": "bash scripts/build-lief.sh",
+    "clean": "rm -rf build",
+    "test": "node test/test.js",
+    "install": "node-gyp-build",
+    "prebuildify": "prebuildify --napi --strip --target 18.17.0"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.0.0",
+    "node-gyp-build": "^3.9.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^10.0.0",
+    "prebuildify": "^2.11.0"
+  },
+  "keywords": [
+    "elf",
+    "pe",
+    "macho",
+    "binary",
+    "parsing",
+    "executable",
+    "dwarf",
+    "pdb"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Piebald-AI/node-lief"
+  }
+}
