@@ -49,7 +49,12 @@ declare namespace LIEF {
       size: bigint;
       readonly fileOffset: bigint;
       virtualSize: bigint;
-      content: number[] | Buffer;
+      /**
+       * Section content as a Buffer.
+       * Getter returns Buffer. Setter accepts Buffer or number[].
+       */
+      get content(): Buffer;
+      set content(value: Buffer | number[]);
       readonly offset: bigint;
     }
 

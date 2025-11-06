@@ -103,14 +103,12 @@ Napi::Value Section::GetContent(const Napi::CallbackInfo& info) {
 
   auto content = section_->content();
   if (content.empty()) {
-    return Napi::Array::New(env);
+    return Napi::Buffer<uint8_t>::New(env, 0);
   }
 
-  Napi::Array result = Napi::Array::New(env);
-  for (size_t i = 0; i < content.size(); i++) {
-    result.Set(static_cast<uint32_t>(i), Napi::Number::New(env, content[i]));
-  }
-  return result;
+  // Use Buffer::Copy to efficiently copy binary data
+  // This is much more efficient than creating an array with millions of Number objects
+  return Napi::Buffer<uint8_t>::Copy(env, content.data(), content.size());
 }
 
 void Section::SetContent(const Napi::CallbackInfo& info, const Napi::Value& value) {
