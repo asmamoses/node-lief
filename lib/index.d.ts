@@ -46,7 +46,6 @@ declare namespace LIEF {
      */
     class Section {
       readonly name: string;
-      readonly type: string;
       readonly virtualAddress: bigint;
       size: bigint;
       readonly fileOffset: bigint;
@@ -178,7 +177,6 @@ declare namespace LIEF {
      */
     class Segment {
       readonly name: string;
-      readonly type: string;
       readonly virtualAddress: bigint;
       readonly virtualSize: bigint;
       readonly fileOffset: bigint;

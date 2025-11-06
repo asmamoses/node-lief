@@ -14,7 +14,6 @@ static Napi::FunctionReference* segment_constructor = nullptr;
 Napi::Object Segment::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function constructor = DefineClass(env, "Segment", {
     InstanceAccessor<&Segment::GetName>("name"),
-    InstanceAccessor<&Segment::GetType>("type"),
     InstanceAccessor<&Segment::GetVirtualAddress>("virtualAddress"),
     InstanceAccessor<&Segment::GetVirtualSize>("virtualSize"),
     InstanceAccessor<&Segment::GetFileOffset>("fileOffset"),
@@ -47,13 +46,6 @@ Napi::Object Segment::NewInstance(Napi::Env env, LIEF::MachO::SegmentCommand* se
 Napi::Value Segment::GetName(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (!segment_) return env.Null();
-  return Napi::String::New(env, segment_->name());
-}
-
-Napi::Value Segment::GetType(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!segment_) return env.Null();
-  // SegmentCommand doesn't have type_to_string(), return the name as type
   return Napi::String::New(env, segment_->name());
 }
 

@@ -28,7 +28,6 @@ class Section : public Napi::ObjectWrap<Section> {
 
   // Properties (read-only and read-write)
   Napi::Value GetName(const Napi::CallbackInfo& info);
-  Napi::Value GetType(const Napi::CallbackInfo& info);
   Napi::Value GetVirtualAddress(const Napi::CallbackInfo& info);
   Napi::Value GetSize(const Napi::CallbackInfo& info);
   void SetSize(const Napi::CallbackInfo& info, const Napi::Value& value);

@@ -27,7 +27,6 @@ class Segment : public Napi::ObjectWrap<Segment> {
 
   // Properties
   Napi::Value GetName(const Napi::CallbackInfo& info);
-  Napi::Value GetType(const Napi::CallbackInfo& info);
   Napi::Value GetVirtualAddress(const Napi::CallbackInfo& info);
   Napi::Value GetVirtualSize(const Napi::CallbackInfo& info);
   Napi::Value GetFileOffset(const Napi::CallbackInfo& info);

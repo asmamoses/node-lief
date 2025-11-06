@@ -13,7 +13,6 @@ static Napi::FunctionReference* section_constructor = nullptr;
 Napi::Object Section::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function constructor = DefineClass(env, "Section", {
     InstanceAccessor<&Section::GetName>("name"),
-    InstanceAccessor<&Section::GetType>("type"),
     InstanceAccessor<&Section::GetVirtualAddress>("virtualAddress"),
     InstanceAccessor<&Section::GetSize, &Section::SetSize>("size"),
     InstanceAccessor<&Section::GetFileOffset>("fileOffset"),
@@ -46,14 +45,6 @@ Napi::Value Section::GetName(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (!section_) return env.Null();
   return Napi::String::New(env, section_->name());
-}
-
-Napi::Value Section::GetType(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  // The abstract Section class doesn't have type_to_string()
-  // Return a generic type string
-  return Napi::String::New(env, "SECTION");
 }
 
 Napi::Value Section::GetVirtualAddress(const Napi::CallbackInfo& info) {

@@ -13,7 +13,6 @@ static Napi::FunctionReference* pe_section_constructor = nullptr;
 Napi::Object PESection::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function constructor = DefineClass(env, "Section", {
     InstanceAccessor<&PESection::GetName>("name"),
-    InstanceAccessor<&PESection::GetType>("type"),
     InstanceAccessor<&PESection::GetVirtualAddress>("virtualAddress"),
     InstanceAccessor<&PESection::GetSize, &PESection::SetSize>("size"),
     InstanceAccessor<&PESection::GetFileOffset>("fileOffset"),
@@ -48,14 +47,6 @@ Napi::Value PESection::GetName(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (!section_) return env.Null();
   return Napi::String::New(env, section_->name());
-}
-
-Napi::Value PESection::GetType(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!section_) return env.Null();
-  // PE sections don't have a simple type string in LIEF
-  // Return a generic type string
-  return Napi::String::New(env, "PE_SECTION");
 }
 
 Napi::Value PESection::GetVirtualAddress(const Napi::CallbackInfo& info) {
