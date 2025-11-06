@@ -7,6 +7,7 @@
       "target_name": "node_lief",
       "sources": [
         "src/init.cpp",
+        "src/binary_impl.cpp",
         "src/abstract/binary.cpp",
         "src/abstract/section.cpp",
         "src/abstract/segment.cpp",
@@ -56,6 +57,7 @@
           "msvs_settings": {
             "VCCLCompilerTool": {
               "ExceptionHandling": 1,
+              "RuntimeTypeInfo": "true",
               "AdditionalOptions": [ "/std:c++17" ]
             }
           }

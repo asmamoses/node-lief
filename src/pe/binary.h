@@ -3,6 +3,7 @@
 #include <napi.h>
 #include <memory>
 #include <LIEF/PE.hpp>
+#include "../binary_impl.h"
 
 namespace node_lief {
 
@@ -10,27 +11,60 @@ namespace node_lief {
  * PE-specific Binary wrapper
  * Provides PE format-specific functionality for Windows executables
  */
-class PEBinary : public Napi::ObjectWrap<PEBinary> {
+class PEBinary : public Napi::ObjectWrap<PEBinary>, protected BinaryImpl {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
   static Napi::Value NewInstance(Napi::Env env, std::unique_ptr<LIEF::PE::Binary> binary);
   explicit PEBinary(const Napi::CallbackInfo& info);
 
  private:
-  std::unique_ptr<LIEF::PE::Binary> binary_;
+  std::unique_ptr<LIEF::PE::Binary> pe_binary_;
 
-  // Abstract properties (inherited from LIEF::Binary)
-  Napi::Value GetFormat(const Napi::CallbackInfo& info);
-  Napi::Value GetEntrypoint(const Napi::CallbackInfo& info);
-  Napi::Value GetIsPie(const Napi::CallbackInfo& info);
-  Napi::Value GetHasNx(const Napi::CallbackInfo& info);
+  // Abstract properties - forward to BinaryImpl
+  Napi::Value GetFormat(const Napi::CallbackInfo& info) {
+    return GetFormatImpl(info.Env());
+  }
+  Napi::Value GetEntrypoint(const Napi::CallbackInfo& info) {
+    return GetEntrypointImpl(info.Env());
+  }
+  Napi::Value GetIsPie(const Napi::CallbackInfo& info) {
+    return GetIsPieImpl(info.Env());
+  }
+  Napi::Value GetHasNx(const Napi::CallbackInfo& info) {
+    return GetHasNxImpl(info.Env());
+  }
+  Napi::Value GetHeader(const Napi::CallbackInfo& info) {
+    return GetHeaderImpl(info.Env());
+  }
+
+  // Abstract methods - forward to BinaryImpl
+  Napi::Value GetSections(const Napi::CallbackInfo& info) {
+    return GetSectionsImpl(info.Env());
+  }
+  Napi::Value GetSymbols(const Napi::CallbackInfo& info) {
+    return GetSymbolsImpl(info.Env());
+  }
+  Napi::Value GetRelocations(const Napi::CallbackInfo& info) {
+    return GetRelocationsImpl(info.Env());
+  }
+  Napi::Value GetSegments(const Napi::CallbackInfo& info) {
+    return GetSegmentsImpl(info.Env());
+  }
+  Napi::Value GetSymbol(const Napi::CallbackInfo& info) {
+    return GetSymbolImpl(info.Env(), info);
+  }
+  Napi::Value PatchAddress(const Napi::CallbackInfo& info) {
+    return PatchAddressImpl(info.Env(), info);
+  }
+  Napi::Value Write(const Napi::CallbackInfo& info) {
+    return WriteImpl(info.Env(), info);
+  }
 
   // PE-specific property getters
   Napi::Value GetOptionalHeader(const Napi::CallbackInfo& info);
 
-  // Methods
+  // PE-specific methods (camelCase)
   Napi::Value GetSection(const Napi::CallbackInfo& info);
-  Napi::Value Write(const Napi::CallbackInfo& info);
 };
 
 } // namespace node_lief

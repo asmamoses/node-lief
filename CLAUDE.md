@@ -46,6 +46,15 @@ pnpm prebuildify
 - **node-addon-api**: N-API C++ wrapper classes
 - **node-gyp-build**: Load prebuilt binaries or fallback to building
 
+## Naming Conventions
+
+**JavaScript/TypeScript API**: All method and property names use **camelCase**:
+- `binary.sections()` (not `binary.get_sections()`)
+- `binary.getSymbol(name)` (not `binary.get_symbol(name)`)
+- `binary.patchAddress(addr, data)` (not `binary.patch_address(addr, data)`)
+
+This applies to all exposed APIs across all binary formats (Abstract, PE, ELF, MachO).
+
 ## Code Structure
 
 ### JavaScript Layer (`lib/`)
@@ -55,31 +64,45 @@ pnpm prebuildify
 
 ### Native C++ Layer (`src/`)
 
-Three-tier architecture mirroring LIEF's format hierarchy:
+Three-tier architecture leveraging LIEF's C++ inheritance:
 
-1. **Abstract Layer** (`src/abstract/`)
+1. **Implementation Base** (`src/binary_impl.{h,cpp}`)
+   - Non-ObjectWrap base class providing DRY shared implementations
+   - Contains all common Binary method implementations (sections, symbols, write, etc.)
+   - Uses non-owning `LIEF::Binary*` pointer to polymorphic LIEF binary
+   - Derived classes inherit from both `Napi::ObjectWrap<T>` and `BinaryImpl`
+
+2. **Abstract Layer** (`src/abstract/`)
    - Format-agnostic interfaces
-   - `binary.{h,cpp}`: Base Binary class with common operations
+   - `binary.{h,cpp}`: Base Binary class, forwards to BinaryImpl
    - `section.{h,cpp}`: Generic section representation
    - `segment.{h,cpp}`: Generic segment (used by MachO)
    - `symbol.{h,cpp}`: Symbol representation
 
-2. **Format-Specific Layers**
+3. **Format-Specific Layers**
    - `src/elf/binary.{h,cpp}`: ELF-specific operations
    - `src/pe/binary.{h,cpp}`: PE-specific operations
    - `src/macho/`: MachO-specific implementation
      - `binary.{h,cpp}`: MachO binary operations
      - `fat_binary.{h,cpp}`: Universal/Fat binary wrapper (multiple architectures)
      - `parse.cpp`: MachO-specific parse function
+   - Each inherits from BinaryImpl for common functionality
+   - Adds format-specific methods and properties
 
-3. **Initialization** (`src/init.cpp`)
+4. **Initialization** (`src/init.cpp`)
    - Module entry point: `NODE_API_MODULE(node_lief, Init)`
    - Exports namespace structure: `LIEF.Abstract`, `LIEF.ELF`, `LIEF.PE`, `LIEF.MachO`
    - Registers all classes and functions
 
 ### Key Design Patterns
 
-**Ownership Model**: Native classes use `std::unique_ptr<LIEF::*>` for owned pointers, with factory methods (`NewInstance()`) to create JS objects from parsed binaries.
+**Ownership Model**: Native classes use `std::unique_ptr<LIEF::*>` for owned pointers, with factory methods (`NewInstance()`) to create JS objects from parsed binaries. Each format-specific class owns the appropriate type (e.g., `PEBinary` owns `std::unique_ptr<LIEF::PE::Binary>`) and sets the inherited `BinaryImpl::binary_` pointer to it for polymorphic access.
+
+**DRY Inheritance Architecture**:
+- `BinaryImpl` contains all shared method implementations
+- Format-specific classes (PE, ELF, MachO) inherit from both `Napi::ObjectWrap<T>` and `BinaryImpl`
+- Common methods are simple inline forwarders in headers (e.g., `GetSections(info) { return GetSectionsImpl(info.Env()); }`)
+- No code duplication across format implementations
 
 **Dual Parse Functions**:
 - `LIEF.parse(filename)`: Returns format-specific binary (ELF.Binary, PE.Binary, MachO.Binary, or Abstract.Binary)
@@ -107,17 +130,24 @@ Test file demonstrates:
 
 ### Adding a New Method to Abstract Binary
 
-1. Add method declaration in `src/abstract/binary.h`
-2. Implement in `src/abstract/binary.cpp`
-3. Register in `AbstractBinary::Init()` using `InstanceMethod<&AbstractBinary::MethodName>("methodName")`
-4. Update TypeScript definitions in `lib/index.d.ts`
+1. Add implementation in `src/binary_impl.{h,cpp}` (e.g., `GetFooImpl()`)
+2. Add inline forwarder in `src/abstract/binary.h`:
+   ```cpp
+   Napi::Value GetFoo(const Napi::CallbackInfo& info) {
+     return GetFooImpl(info.Env(), info);
+   }
+   ```
+3. Register in `AbstractBinary::Init()` using `InstanceMethod<&AbstractBinary::GetFoo>("fooMethod")` (use camelCase!)
+4. Repeat steps 2-3 for format-specific classes (PE, ELF, MachO) - they automatically inherit the implementation
+5. Update TypeScript definitions in `lib/index.d.ts`
 
 ### Adding Format-Specific Functionality
 
-Example for MachO-specific feature:
-1. Add to `src/macho/binary.h` and `binary.cpp`
-2. Register in `MachOBinary::Init()`
-3. Update TypeScript definitions under `namespace MachO`
+Example for PE-specific feature:
+1. Add method declaration and implementation in `src/pe/binary.{h,cpp}`
+2. Register in `PEBinary::Init()` using `InstanceMethod<&PEBinary::MethodName>("methodName")` (use camelCase!)
+3. Update TypeScript definitions under `namespace PE`
+4. Format-specific methods can access `pe_binary_` (typed pointer) directly
 
 ### Working with LIEF Types
 

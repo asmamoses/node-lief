@@ -20,11 +20,19 @@ Napi::Object PEBinary::Init(Napi::Env env, Napi::Object exports) {
     InstanceAccessor<&PEBinary::GetEntrypoint>("entrypoint"),
     InstanceAccessor<&PEBinary::GetIsPie>("isPie"),
     InstanceAccessor<&PEBinary::GetHasNx>("hasNx"),
+    InstanceAccessor<&PEBinary::GetHeader>("header"),
     // PE-specific properties
     InstanceAccessor<&PEBinary::GetOptionalHeader>("optionalHeader"),
-    // Methods
-    InstanceMethod<&PEBinary::GetSection>("get_section"),
+    // Abstract methods
+    InstanceMethod<&PEBinary::GetSections>("sections"),
+    InstanceMethod<&PEBinary::GetSymbols>("symbols"),
+    InstanceMethod<&PEBinary::GetRelocations>("relocations"),
+    InstanceMethod<&PEBinary::GetSegments>("segments"),
+    InstanceMethod<&PEBinary::GetSymbol>("getSymbol"),
+    InstanceMethod<&PEBinary::PatchAddress>("patchAddress"),
     InstanceMethod<&PEBinary::Write>("write"),
+    // PE-specific methods (camelCase)
+    InstanceMethod<&PEBinary::GetSection>("getSection"),
   });
 
   pe_binary_constructor = new Napi::FunctionReference();
@@ -41,12 +49,13 @@ Napi::Value PEBinary::NewInstance(Napi::Env env, std::unique_ptr<LIEF::PE::Binar
   }
   Napi::Object obj = pe_binary_constructor->New({});
   PEBinary* wrapper = PEBinary::Unwrap(obj);
-  wrapper->binary_ = std::move(binary);
+  wrapper->pe_binary_ = std::move(binary);
+  wrapper->binary_ = wrapper->pe_binary_.get();
   return obj;
 }
 
 PEBinary::PEBinary(const Napi::CallbackInfo& info)
-    : Napi::ObjectWrap<PEBinary>(info), binary_(nullptr) {
+    : Napi::ObjectWrap<PEBinary>(info), BinaryImpl() {
   Napi::Env env = info.Env();
 
   // Allow construction with no arguments for NewInstance pattern
@@ -68,18 +77,19 @@ PEBinary::PEBinary(const Napi::CallbackInfo& info)
     return;
   }
 
-  binary_ = std::move(parsed);
+  pe_binary_ = std::move(parsed);
+  binary_ = pe_binary_.get();
 }
 
 Napi::Value PEBinary::GetSection(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (!binary_ || info.Length() < 1 || !info[0].IsString()) {
+  if (!pe_binary_ || info.Length() < 1 || !info[0].IsString()) {
     return env.Null();
   }
 
   std::string section_name = info[0].As<Napi::String>();
-  auto* section = binary_->get_section(section_name);
+  auto* section = pe_binary_->get_section(section_name);
 
   if (!section) {
     return env.Null();
@@ -88,59 +98,16 @@ Napi::Value PEBinary::GetSection(const Napi::CallbackInfo& info) {
   return Section::NewInstance(env, section);
 }
 
-Napi::Value PEBinary::Write(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-
-  if (!binary_ || info.Length() < 1 || !info[0].IsString()) {
-    Napi::TypeError::New(env, "write() requires an output file path")
-        .ThrowAsJavaScriptException();
-    return env.Undefined();
-  }
-
-  std::string output_path = info[0].As<Napi::String>();
-
-  try {
-    binary_->write(output_path);
-    return env.Undefined();
-  } catch (const std::exception& e) {
-    Napi::Error::New(env, std::string("Failed to write binary: ") + e.what())
-        .ThrowAsJavaScriptException();
-    return env.Undefined();
-  }
-}
-
 Napi::Value PEBinary::GetOptionalHeader(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (!binary_) {
+  if (!pe_binary_) {
     return env.Null();
   }
 
-  return OptionalHeader::NewInstance(env, &binary_->optional_header());
+  return OptionalHeader::NewInstance(env, &pe_binary_->optional_header());
 }
 
-// Abstract property implementations
-
-Napi::Value PEBinary::GetFormat(const Napi::CallbackInfo& info) {
-  return Napi::String::New(info.Env(), "PE");
-}
-
-Napi::Value PEBinary::GetEntrypoint(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!binary_) return env.Undefined();
-  return Napi::BigInt::New(env, binary_->entrypoint());
-}
-
-Napi::Value PEBinary::GetIsPie(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!binary_) return env.Undefined();
-  return Napi::Boolean::New(env, binary_->is_pie());
-}
-
-Napi::Value PEBinary::GetHasNx(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  if (!binary_) return env.Undefined();
-  return Napi::Boolean::New(env, binary_->has_nx());
-}
+// All abstract method implementations are now in BinaryImpl and forwarded via inline methods in the header
 
 } // namespace node_lief

@@ -75,23 +75,11 @@ declare namespace LIEF {
      * ELF-specific binary class
      * Used for Linux/Unix executable manipulation
      */
-    class Binary {
+    class Binary extends Abstract.Binary {
       constructor(filename: string);
 
-      // Properties inherited from Abstract.Binary
+      // Override format type
       readonly format: 'ELF';
-      readonly entrypoint: bigint;
-      readonly isPie: boolean;
-      readonly hasNx: boolean;
-      readonly header: Abstract.Header;
-
-      // Methods
-      sections(): Abstract.Section[];
-      symbols(): Abstract.Symbol[];
-      relocations(): Abstract.Relocation[];
-      getSymbol(name: string): Abstract.Symbol | null;
-      patchAddress(address: bigint | number, patch: Buffer | number[]): void;
-      write(outputPath: string): void;
     }
   }
 
@@ -100,26 +88,17 @@ declare namespace LIEF {
      * PE (Windows Portable Executable) binary class
      * Used for Windows .exe and .dll manipulation
      */
-    class Binary {
+    class Binary extends Abstract.Binary {
       constructor(filename: string);
 
-      // Properties inherited from Abstract.Binary
+      // Override format type
       readonly format: 'PE';
-      readonly entrypoint: bigint;
-      readonly isPie: boolean;
-      readonly hasNx: boolean;
-      readonly header: Abstract.Header;
 
       // PE-specific properties
       readonly optionalHeader: OptionalHeader;
 
-      // Methods
-      sections(): Abstract.Section[];
-      symbols(): Abstract.Symbol[];
-      relocations(): Abstract.Relocation[];
-      getSymbol(name: string): Abstract.Symbol | null;
-      patchAddress(address: bigint | number, patch: Buffer | number[]): void;
-      write(outputPath: string): void;
+      // PE-specific methods
+      getSection(name: string): Abstract.Section | null;
     }
 
     /**
@@ -163,25 +142,19 @@ declare namespace LIEF {
      * Mach-O (macOS/iOS) binary class
      * Used for macOS executable manipulation
      */
-    class Binary {
+    class Binary extends Abstract.Binary {
       constructor(filename: string);
 
-      // Properties inherited from Abstract.Binary
+      // Override format type
       readonly format: 'MachO';
-      readonly entrypoint: bigint;
-      readonly isPie: boolean;
-      readonly hasNx: boolean;
 
       // MachO-specific properties
       readonly hasCodeSignature: boolean;
 
-      // Methods
-      sections(): Abstract.Section[];
-      symbols(): Abstract.Symbol[];
+      // MachO-specific methods
       getSegment(name: string): Segment | null;
       removeSignature(): void;
       extendSegment(segment: Segment, size: bigint | number): boolean;
-      write(outputPath: string): void;
     }
 
     /**
