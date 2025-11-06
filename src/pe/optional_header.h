@@ -1,0 +1,53 @@
+#pragma once
+
+#include <napi.h>
+#include <LIEF/PE.hpp>
+
+namespace node_lief {
+
+/**
+ * PE OptionalHeader wrapper
+ * Provides access to PE Optional Header fields
+ */
+class OptionalHeader : public Napi::ObjectWrap<OptionalHeader> {
+ public:
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Value NewInstance(Napi::Env env, const LIEF::PE::OptionalHeader* header);
+
+  explicit OptionalHeader(const Napi::CallbackInfo& info);
+
+ private:
+  const LIEF::PE::OptionalHeader* header_;
+
+  // Getter methods for properties
+  Napi::Value GetMagic(const Napi::CallbackInfo& info);
+  Napi::Value GetMajorLinkerVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMinorLinkerVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfCode(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfInitializedData(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfUninitializedData(const Napi::CallbackInfo& info);
+  Napi::Value GetAddressOfEntrypoint(const Napi::CallbackInfo& info);
+  Napi::Value GetBaseOfCode(const Napi::CallbackInfo& info);
+  Napi::Value GetBaseOfData(const Napi::CallbackInfo& info);
+  Napi::Value GetImagebase(const Napi::CallbackInfo& info);
+  Napi::Value GetSectionAlignment(const Napi::CallbackInfo& info);
+  Napi::Value GetFileAlignment(const Napi::CallbackInfo& info);
+  Napi::Value GetMajorOperatingSystemVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMinorOperatingSystemVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMajorImageVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMinorImageVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMajorSubsystemVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetMinorSubsystemVersion(const Napi::CallbackInfo& info);
+  Napi::Value GetWin32VersionValue(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfImage(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfHeaders(const Napi::CallbackInfo& info);
+  Napi::Value GetChecksum(const Napi::CallbackInfo& info);
+  Napi::Value GetSubsystem(const Napi::CallbackInfo& info);
+  Napi::Value GetDllCharacteristics(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfStackReserve(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfStackCommit(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfHeapReserve(const Napi::CallbackInfo& info);
+  Napi::Value GetSizeOfHeapCommit(const Napi::CallbackInfo& info);
+};
+
+} // namespace node_lief

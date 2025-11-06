@@ -110,6 +110,9 @@ declare namespace LIEF {
       readonly hasNx: boolean;
       readonly header: Abstract.Header;
 
+      // PE-specific properties
+      readonly optionalHeader: OptionalHeader;
+
       // Methods
       sections(): Abstract.Section[];
       symbols(): Abstract.Symbol[];
@@ -117,6 +120,41 @@ declare namespace LIEF {
       getSymbol(name: string): Abstract.Symbol | null;
       patchAddress(address: bigint | number, patch: Buffer | number[]): void;
       write(outputPath: string): void;
+    }
+
+    /**
+     * PE Optional Header
+     * Contains critical PE file metadata (despite the name, it's mandatory for PE files)
+     */
+    class OptionalHeader {
+      readonly magic: 'PE32' | 'PE32_PLUS' | 'UNKNOWN';
+      readonly majorLinkerVersion: number;
+      readonly minorLinkerVersion: number;
+      readonly sizeOfCode: number;
+      readonly sizeOfInitializedData: number;
+      readonly sizeOfUninitializedData: number;
+      readonly addressOfEntrypoint: number;
+      readonly baseOfCode: number;
+      readonly baseOfData: number;
+      readonly imagebase: bigint;
+      readonly sectionAlignment: number;
+      readonly fileAlignment: number;
+      readonly majorOperatingSystemVersion: number;
+      readonly minorOperatingSystemVersion: number;
+      readonly majorImageVersion: number;
+      readonly minorImageVersion: number;
+      readonly majorSubsystemVersion: number;
+      readonly minorSubsystemVersion: number;
+      readonly win32VersionValue: number;
+      readonly sizeOfImage: number;
+      readonly sizeOfHeaders: number;
+      readonly checksum: number;
+      readonly subsystem: number;
+      readonly dllCharacteristics: number;
+      readonly sizeOfStackReserve: bigint;
+      readonly sizeOfStackCommit: bigint;
+      readonly sizeOfHeapReserve: bigint;
+      readonly sizeOfHeapCommit: bigint;
     }
   }
 

@@ -7,6 +7,7 @@
 #include "binary.h"
 #include "section.h"
 #include "../macho/binary.h"
+#include "../pe/binary.h"
 #include <LIEF/LIEF.hpp>
 #include <sstream>
 
@@ -411,8 +412,19 @@ Napi::Value Parse(const Napi::CallbackInfo& info) {
     }
     return MachOBinary::NewInstance(env, std::move(macho_binary));
   }
-  // For other formats, return the abstract wrapper for now
-  // TODO: Add PE and ELF concrete wrappers
+
+  if (format == LIEF::Binary::FORMATS::PE) {
+    // For PE, parse with format-specific parser to get proper Binary
+    auto pe_binary = LIEF::PE::Parser::parse(filename);
+    if (!pe_binary) {
+      Napi::Error::New(env, "Failed to parse PE binary").ThrowAsJavaScriptException();
+      return env.Null();
+    }
+    return PEBinary::NewInstance(env, std::move(pe_binary));
+  }
+
+  // For other formats (ELF, etc.), return the abstract wrapper
+  // TODO: Add ELF concrete wrapper
   return AbstractBinary::NewInstance(env, std::move(parsed));
 }
 
