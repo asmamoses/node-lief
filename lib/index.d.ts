@@ -154,31 +154,6 @@ declare namespace LIEF {
 
   namespace MachO {
     /**
-     * CPU Architecture Types
-     * These values combine the base architecture with the ABI64 flag (0x01000000)
-     */
-    enum CPU_TYPE {
-      ANY = -1,
-      X86 = 7,
-      X86_64 = 16777223, // 7 | ABI64
-      MIPS = 8,
-      MC98000 = 10,
-      HPPA = 11,
-      ARM = 12,
-      ARM64 = 16777228, // 12 | ABI64
-      MC88000 = 13,
-      SPARC = 14,
-      I860 = 15,
-      ALPHA = 16,
-      POWERPC = 18,
-      POWERPC64 = 16777234, // 18 | ABI64
-      APPLE_GPU = 16777235, // 19 | ABI64
-      AMD_GPU = 16777236, // 20 | ABI64
-      INTEL_GPU = 16777237, // 21 | ABI64
-      AIR64 = 16777239, // 23 | ABI64
-    }
-
-    /**
      * MachO Header
      * Contains critical metadata about the Mach-O binary
      * This is a format-specific header, separate from Abstract.Header
@@ -193,6 +168,36 @@ declare namespace LIEF {
       readonly sizeofCmds: number;
       readonly is32Bit: boolean;
       readonly is64Bit: boolean;
+
+      /**
+       * CPU Architecture Type Constants
+       * These values combine the base architecture with the ABI64 flag (0x01000000)
+       *
+       * @example
+       * if (binary.header.cpuType === LIEF.MachO.Header.CPU_TYPE.ARM64) {
+       *   console.log('This is an ARM64 binary');
+       * }
+       */
+      static readonly CPU_TYPE: {
+        readonly ANY: -1;
+        readonly X86: 7;
+        readonly X86_64: 16777223; // 7 | ABI64
+        readonly MIPS: 8;
+        readonly MC98000: 10;
+        readonly HPPA: 11;
+        readonly ARM: 12;
+        readonly ARM64: 16777228; // 12 | ABI64
+        readonly MC88000: 13;
+        readonly SPARC: 14;
+        readonly I860: 15;
+        readonly ALPHA: 16;
+        readonly POWERPC: 18;
+        readonly POWERPC64: 16777234; // 18 | ABI64
+        readonly APPLE_GPU: 16777235; // 19 | ABI64
+        readonly AMD_GPU: 16777236; // 20 | ABI64
+        readonly INTEL_GPU: 16777237; // 21 | ABI64
+        readonly AIR64: 16777239; // 23 | ABI64
+      };
     }
 
     /**
