@@ -34,6 +34,7 @@ class MachOBinary : public Napi::ObjectWrap<MachOBinary> {
 
   // MachO-specific properties
   Napi::Value GetHasCodeSignature(const Napi::CallbackInfo& info);
+  Napi::Value GetHeader(const Napi::CallbackInfo& info);
 
   // Methods
   Napi::Value GetSegment(const Napi::CallbackInfo& info);

@@ -17,6 +17,7 @@
         "src/pe/section.cpp",
         "src/pe/optional_header.cpp",
         "src/macho/binary.cpp",
+        "src/macho/header.cpp",
         "src/macho/fat_binary.cpp",
         "src/macho/parse.cpp"
       ],

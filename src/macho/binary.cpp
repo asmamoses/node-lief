@@ -5,6 +5,7 @@
  */
 
 #include "binary.h"
+#include "header.h"
 #include "../abstract/segment.h"
 #include "../abstract/section.h"
 #include <LIEF/logging.hpp>
@@ -23,6 +24,7 @@ Napi::Object MachOBinary::Init(Napi::Env env, Napi::Object exports) {
     InstanceAccessor<&MachOBinary::GetHasNx>("hasNx"),
     // MachO-specific properties
     InstanceAccessor<&MachOBinary::GetHasCodeSignature>("hasCodeSignature"),
+    InstanceAccessor<&MachOBinary::GetHeader>("header"),
     // Methods - camelCase (JavaScript convention)
     InstanceMethod<&MachOBinary::GetSegment>("getSegment"),
     InstanceMethod<&MachOBinary::GetSections>("sections"),
@@ -120,6 +122,17 @@ Napi::Value MachOBinary::GetHasCodeSignature(const Napi::CallbackInfo& info) {
   }
 
   return Napi::Boolean::New(env, binary->has_code_signature());
+}
+
+Napi::Value MachOBinary::GetHeader(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  auto* binary = GetBinary();
+  if (!binary) {
+    return env.Null();
+  }
+
+  return MachOHeader::NewInstance(env, &binary->header());
 }
 
 Napi::Value MachOBinary::GetSegment(const Napi::CallbackInfo& info) {

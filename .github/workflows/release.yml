@@ -112,7 +112,7 @@ jobs:
               dnf install -y python3.12 ninja-build
 
               # Install sccache
-              curl -L https://github.com/mozilla/sccache/releases/download/v0.9.0/sccache-v0.9.0-x86_64-unknown-linux-musl.tar.gz | tar xz
+              curl -L https://github.com/mozilla/sccache/releases/download/v0.12.0/sccache-v0.12.0-x86_64-unknown-linux-musl.tar.gz | tar xz
               mv sccache-*/sccache /usr/local/bin/
               chmod +x /usr/local/bin/sccache
 

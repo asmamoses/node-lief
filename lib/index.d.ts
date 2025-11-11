@@ -161,6 +161,45 @@ declare namespace LIEF {
 
   namespace MachO {
     /**
+     * CPU Architecture Types
+     * These values combine the base architecture with the ABI64 flag (0x01000000)
+     */
+    enum CPU_TYPE {
+      ANY = -1,
+      X86 = 7,
+      X86_64 = 16777223,  // 7 | ABI64
+      MIPS = 8,
+      MC98000 = 10,
+      HPPA = 11,
+      ARM = 12,
+      ARM64 = 16777228,   // 12 | ABI64
+      MC88000 = 13,
+      SPARC = 14,
+      I860 = 15,
+      ALPHA = 16,
+      POWERPC = 18,
+      POWERPC64 = 16777234, // 18 | ABI64
+      APPLE_GPU = 16777235, // 19 | ABI64
+      AMD_GPU = 16777236,   // 20 | ABI64
+      INTEL_GPU = 16777237, // 21 | ABI64
+      AIR64 = 16777239      // 23 | ABI64
+    }
+
+    /**
+     * MachO Header
+     * Contains critical metadata about the Mach-O binary
+     */
+    class Header {
+      readonly cpuType: number;  // CPU_TYPE enum value
+      readonly cpuSubtype: number;
+      readonly fileType: number;
+      readonly flags: number;
+      readonly magic: number;
+      readonly nbCmds: number;
+      readonly sizeofCmds: number;
+    }
+
+    /**
      * Mach-O (macOS/iOS) binary class
      * Used for macOS executable manipulation
      */
@@ -172,6 +211,7 @@ declare namespace LIEF {
 
       // MachO-specific properties
       readonly hasCodeSignature: boolean;
+      readonly header: Header;
 
       // MachO-specific methods
       getSegment(name: string): Segment | null;

@@ -15,6 +15,7 @@
 #include "pe/section.h"
 #include "pe/optional_header.h"
 #include "macho/binary.h"
+#include "macho/header.h"
 #include "macho/fat_binary.h"
 #include <LIEF/logging.hpp>
 
@@ -67,6 +68,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set("MachO", Napi::Object::New(env));
   auto macho = exports.Get("MachO").As<Napi::Object>();
   macho.Set("Binary", MachOBinary::Init(env, exports));
+  macho.Set("Header", MachOHeader::Init(env, exports));
   macho.Set("FatBinary", MachOFatBinary::Init(env, exports));
   macho.Set("Segment", Segment::Init(env, exports));
   macho.Set("parse", Napi::Function::New(env, MachOParse));
